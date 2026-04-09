@@ -1,0 +1,134 @@
+PROJECT STATUS SNAPSHOT
+Date: 2026-04-07
+
+IMPLEMENTED NOW (CURRENT PROJECT)
+
+Backend (Django + DRF)
+- Custom auth user model with roles: ADMIN, VENDOR, CUSTOMER.
+- JWT auth endpoints:
+  - POST /api/auth/token/
+  - POST /api/auth/token/refresh/
+- Registration and profile:
+  - POST /api/accounts/register/
+  - GET/PATCH /api/accounts/me/
+- Vendor profile flow:
+  - VendorProfile auto-created for vendor users.
+  - Admin vendor approval endpoint:
+    - PATCH /api/vendors/{id}/approve/
+  - Vendor self profile:
+    - GET/PATCH /api/vendors/me/
+- Product management:
+  - Public product listing with search/category filters.
+  - Category listing endpoint.
+  - Vendor product CRUD with approval check.
+  - Vendor-specific list: GET /api/products/mine/
+  - Image upload field is configured (Pillow + media settings).
+- Orders:
+  - Checkout endpoint with atomic order + order-item splitting by vendor.
+  - Stock decrement during successful checkout.
+  - Customer order list endpoint.
+  - Vendor order-item list endpoint.
+  - Vendor order-item status update endpoint.
+  - Vendor financial summary endpoint.
+- Admin analytics:
+  - GET /api/analytics/admin-metrics/
+- Environment and platform config:
+  - PostgreSQL settings via env vars.
+  - CORS config.
+  - Static/media settings.
+
+Frontend (React + Vite + Tailwind)
+- Auth context and JWT token storage.
+- Axios client with Bearer token interceptor.
+- Login and registration pages.
+- Protected route wrapper by role.
+- Home page with product search + add-to-cart.
+- Cart page with quantity update and checkout.
+- Admin dashboard starter:
+  - Metrics cards.
+  - Vendor approval toggle list.
+- Vendor dashboard (Step 1 completed):
+  - Pending approval handling.
+  - Product create/edit/delete UI (with image upload support).
+  - My products management list.
+  - Vendor order-fulfillment section (PROCESSING/SHIPPED/DELIVERED).
+  - Vendor financial cards (sales, earnings, pending processing count).
+- Role-aware landing behavior:
+  - Admin -> /admin
+  - Vendor -> /vendor
+  - Customer/guest -> home
+- Step 2 customer flow (completed):
+  - Product detail page route:
+    - /products/:id
+  - Product detail view shows image, stock, description, vendor, and add-to-cart.
+  - Customer order tracking page route:
+    - /orders
+  - My Orders view shows order-level status and per-item status.
+  - Customer nav now includes "My Orders".
+- Catalog + review enhancements (completed):
+  - Predefined marketplace categories with vendor dropdown selector.
+  - Customer-side category filter on home page.
+  - Product-level sale price support and sale badge on cards/details.
+  - Rating summary shown on home cards, product details, and vendor product list.
+  - Delivered-only review system:
+    - Rating (1-5)
+    - Review text
+    - Multiple review images
+  - Product detail page now displays review gallery.
+  - My Orders includes quick "Write a review" link for delivered items.
+  - Cart/checkout uses effective (sale) price.
+  - Extra UX improvements:
+    - Product sorting options (newest, price low/high, top-rated)
+    - Low-stock indicator on product cards
+  - User shipping profile system:
+    - New profile page in navbar beside logout.
+    - Stores shipping address/contact details required for deliveries.
+    - Backend API endpoint:
+      - GET/PATCH /api/accounts/shipping-profile/
+- Vendor improvements (completed):
+  - Better inventory tooling:
+    - Low-stock warnings panel in vendor dashboard.
+    - Bulk stock update mode:
+      - Set stock directly
+      - Increment stock by quantity
+  - Separate vendor earnings analytics view:
+    - Route: /vendor/analytics
+    - Date filter controls (start/end date)
+    - Chart-style date-wise sales visualization (custom HTML/CSS bars, no external chart library)
+    - Summary metrics (sales, items, orders, avg order value)
+    - Current data source:
+      - Built from vendor order items API with selected date filtering
+      - Endpoint used: GET /api/orders/vendor/items/
+    - Available backend analytics endpoint (currently optional for UI):
+      - GET /api/orders/vendor/analytics/
+- Step 3 admin management (completed):
+  - Admin user list/search/filter API and UI.
+  - Admin user role update and activate/deactivate controls.
+  - Admin all-orders API and UI with status update control.
+  - Admin dashboard now combines metrics + vendors + users + orders.
+
+
+PARTIALLY IMPLEMENTED / NEEDS POLISH
+- Cart/checkout UX is functional but minimal (no address form validation workflow).
+- Loading, toast notifications, and rich form validation are basic.
+- Admin UI has major management features but still needs pagination/sorting polish.
+
+
+TO BE IMPLEMENTED NEXT (FUTURE WORK)
+
+High Priority
+- Vendor order filtering/search/sorting and pagination controls in UI.
+- Better error handling and user feedback (toast system across app).
+
+Admin Improvements
+- Vendor request workflow enhancements (timestamps, notes, audit trail).
+
+Vendor Improvements
+- Enhanced inventory forecasting and reorder suggestions.
+
+Platform/Technical
+- Automated tests (unit + API integration + basic frontend smoke tests).
+- API docs (OpenAPI/Swagger) and endpoint examples.
+- Token refresh flow in axios interceptor on 401.
+- Deployment hardening (production static/media strategy, HTTPS, secure cookies where needed).
+- Optional payment integration and shipment provider integration.
