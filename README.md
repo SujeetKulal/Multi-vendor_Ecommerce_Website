@@ -1,3 +1,6 @@
+# Multi-vendor_Ecommerce_Website
+A scalable, full-stack multi-vendor e-commerce ecosystem. Features independent vendor portals, admin moderation workflows, and a modern customer experience built with Django REST Framework, React (Vite), and PostgreSQL.
+
 # Multi-Vendor Ecommerce Website
 
 Scaffolded full-stack marketplace based on `PROJECT_SPEC.md`.
