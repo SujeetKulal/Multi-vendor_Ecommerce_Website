@@ -6,6 +6,40 @@ body {
   font-family: "Manrope", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   min-height: 100vh;
   color: #111827;
+  background: #fbf9f6;
+}
+
+.nordic-canvas {
+  position: relative;
+  background: rgba(250, 250, 249, 0.5);
+}
+
+.nordic-blob {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(70px);
+  opacity: 0.1;
+  z-index: 0;
+  animation: floatNordic 22s ease-in-out infinite;
+}
+
+.nordic-blob-peach {
+  width: min(42vw, 34rem);
+  height: min(42vw, 34rem);
+  top: 3rem;
+  left: -6rem;
+  background: #fde68a;
+}
+
+.nordic-blob-sage {
+  width: min(38vw, 30rem);
+  height: min(38vw, 30rem);
+  right: -6rem;
+  top: 12rem;
+  background: #d1fae5;
+  animation-delay: -8s;
+  animation-duration: 26s;
 }
 
 .auth-bg {
@@ -77,5 +111,15 @@ body {
   }
   50% {
     transform: translate3d(-14px, 18px, 0) scale(1.06);
+  }
+}
+
+@keyframes floatNordic {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(14px, -12px, 0) scale(1.04);
   }
 }

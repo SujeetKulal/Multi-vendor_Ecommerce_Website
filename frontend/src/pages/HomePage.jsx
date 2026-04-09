@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, CircleDollarSign, Funnel, ShoppingBag, Star } from "lucide-react";
+import { ArrowRight, CheckCircle2, CircleDollarSign, Funnel, ShoppingBag, Star, Tag } from "lucide-react";
 import apiClient from "../api/client";
 import { formatPrice, resolveImageUrl } from "../utils/product";
 
 export default function HomePage() {
+  const heroText = "Curated Finds For Everyday Life";
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -13,6 +14,7 @@ export default function HomePage() {
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("newest");
   const [toast, setToast] = useState(null);
+  const [typedTitle, setTypedTitle] = useState("");
   const toastTimerRef = useRef(null);
 
   const gridContainer = {
@@ -54,6 +56,16 @@ export default function HomePage() {
     setSearch(searchParams.get("q") || "");
   }, [searchParams]);
 
+  useEffect(() => {
+    let idx = 0;
+    const timer = setInterval(() => {
+      idx += 1;
+      setTypedTitle(heroText.slice(0, idx));
+      if (idx >= heroText.length) clearInterval(timer);
+    }, 45);
+    return () => clearInterval(timer);
+  }, []);
+
   const addToCart = (product) => {
     const raw = localStorage.getItem("cart_items");
     const cart = raw ? JSON.parse(raw) : [];
@@ -79,7 +91,9 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div className="nordic-canvas mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div className="nordic-blob nordic-blob-peach" />
+      <div className="nordic-blob nordic-blob-sage" />
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -115,14 +129,17 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      <section className="mb-8 rounded-3xl border border-white/30 bg-white/10 p-6 shadow-xl backdrop-blur-md">
+      <section className="relative z-10 mb-8 rounded-3xl border border-white/55 bg-white/45 p-6 shadow-[0_24px_60px_-40px_rgba(120,113,108,0.45)] backdrop-blur-lg">
         <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Discover</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-800 sm:text-4xl">Curated Finds For Everyday Life</h1>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-800 sm:text-4xl">
+          {typedTitle}
+          <span className="ml-0.5 inline-block h-[1.05em] w-[2px] animate-pulse bg-slate-500 align-middle" />
+        </h1>
         <p className="mt-3 max-w-2xl text-sm text-slate-600">
           Browse quality products from trusted vendors. Use filters to quickly narrow by category, price, and ratings.
         </p>
         <div className="mt-6 grid gap-3 md:grid-cols-3">
-          <label className="group flex items-center gap-2 rounded-xl border border-white/40 bg-white/60 px-3 py-2 focus-within:border-indigo-300/70 focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.2)]">
+          <label className="group flex items-center gap-2 rounded-xl border border-stone-200/70 bg-white/70 px-3 py-2 focus-within:border-indigo-300/70 focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.18)]">
             <ShoppingBag size={16} className="text-slate-500" />
             <input
               value={search}
@@ -131,7 +148,7 @@ export default function HomePage() {
               className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
             />
           </label>
-          <label className="flex items-center gap-2 rounded-xl border border-white/40 bg-white/60 px-3 py-2">
+          <label className="flex items-center gap-2 rounded-xl border border-stone-200/70 bg-white/70 px-3 py-2">
             <Funnel size={16} className="text-slate-500" />
             <select className="w-full bg-transparent text-sm text-slate-700 outline-none" value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="">All Categories</option>
@@ -140,7 +157,7 @@ export default function HomePage() {
               ))}
             </select>
           </label>
-          <label className="flex items-center gap-2 rounded-xl border border-white/40 bg-white/60 px-3 py-2">
+          <label className="flex items-center gap-2 rounded-xl border border-stone-200/70 bg-white/70 px-3 py-2">
             <CircleDollarSign size={16} className="text-slate-500" />
             <select className="w-full bg-transparent text-sm text-slate-700 outline-none" value={sort} onChange={(e) => setSort(e.target.value)}>
               <option value="newest">Newest</option>
@@ -156,46 +173,52 @@ export default function HomePage() {
         variants={gridContainer}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 gap-4 md:grid-cols-12"
+        className="relative z-10 grid grid-cols-1 gap-5 md:grid-cols-12"
       >
         {products.map((p, index) => {
-          const wide = index % 6 === 0 || index % 6 === 3;
+          const featured = index === 0;
+          const ratingValue = Number(p.average_rating || 0);
+          const ratingRounded = Math.round(ratingValue);
           return (
             <motion.article
               key={p.id}
               variants={gridItem}
               whileHover={{ y: -6 }}
-              className={`group relative overflow-hidden rounded-2xl border border-white/35 bg-white/15 p-4 shadow-lg backdrop-blur-md ${wide ? "md:col-span-8" : "md:col-span-4"}`}
+              className={`group relative overflow-hidden rounded-3xl border border-white/65 bg-white/42 p-5 shadow-[0_26px_55px_-42px_rgba(120,113,108,0.5)] backdrop-blur-lg ${featured ? "md:col-span-8" : "md:col-span-4"}`}
             >
               {p.sale_price && Number(p.sale_price) > 0 && Number(p.sale_price) < Number(p.price) && (
-                <span className="absolute left-3 top-3 z-10 rounded-full bg-rose-600 px-2 py-1 text-[11px] font-semibold text-white">
-                  SALE
+                <span className="absolute left-4 top-4 z-10 inline-flex items-center gap-1 rounded-full border border-amber-300/80 bg-amber-50/70 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+                  <Tag size={12} />
+                  Sale
                 </span>
               )}
-              <div className="mx-auto aspect-square w-full max-w-[19rem] overflow-hidden rounded-xl bg-white/70">
+              <Link to={`/products/${p.id}`} className={`relative mx-auto block w-full overflow-hidden rounded-2xl border border-stone-200/60 bg-white ${featured ? "aspect-[4/3] max-w-[36rem]" : "aspect-square max-w-[19rem]"}`}>
+                <div className="absolute right-3 top-3 z-10 inline-flex items-center gap-0.5 rounded-full border border-stone-200/80 bg-white/85 px-2 py-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={`${p.id}-grid-star-${i}`}
+                      size={11}
+                      className={i < ratingRounded ? "fill-amber-400 text-amber-500" : "text-stone-300"}
+                    />
+                  ))}
+                </div>
                 {p.image ? (
                   <img
                     src={resolveImageUrl(p.image)}
                     alt={p.name}
-                    className="h-full w-full object-contain p-2 transition duration-500 group-hover:scale-105"
+                    className="h-full w-full object-contain p-5 transition duration-500 group-hover:scale-110"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center rounded-xl bg-slate-100 text-sm text-slate-500">
                     No image
                   </div>
                 )}
-              </div>
+              </Link>
 
               <div className="mt-4 flex items-start justify-between gap-3">
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800">{p.name}</h3>
-                  <span className="mt-1 inline-flex rounded-full bg-indigo-100/70 px-2 py-1 text-xs font-medium text-indigo-700">
-                    {p.vendor_name}
-                  </span>
-                </div>
-                <div className="inline-flex items-center gap-1 rounded-full bg-amber-100/70 px-2 py-1 text-xs text-amber-700">
-                  <Star size={13} className="fill-amber-400 text-amber-500" />
-                  {Number(p.average_rating || 0).toFixed(1)}
+                  <h3 className={`font-bold tracking-tight text-slate-900 ${featured ? "text-2xl" : "text-xl"}`}>{p.name}</h3>
+                  <p className="mt-1 text-[11px] font-medium tracking-wide text-slate-500">{p.vendor_name}</p>
                 </div>
               </div>
 
@@ -214,11 +237,11 @@ export default function HomePage() {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <Link className="inline-flex items-center gap-1 rounded-lg border border-slate-300/70 bg-white/60 px-3 py-1.5 text-sm text-slate-700 hover:bg-white/80" to={`/products/${p.id}`}>
+                <Link className="inline-flex items-center gap-1 rounded-full border border-stone-300/80 bg-white/75 px-3 py-1.5 text-sm text-slate-700 hover:bg-white" to={`/products/${p.id}`}>
                   View Details <ArrowRight size={14} />
                 </Link>
                 <button
-                  className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm text-white hover:bg-indigo-500"
+                  className="rounded-full bg-black px-4 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-600"
                   onClick={() => addToCart(p)}
                 >
                   Add to Cart
@@ -230,7 +253,7 @@ export default function HomePage() {
       </motion.div>
 
       {!products.length && (
-        <div className="rounded-2xl border border-white/30 bg-white/15 p-8 text-center text-slate-600 backdrop-blur-md">
+        <div className="relative z-10 rounded-2xl border border-white/40 bg-white/35 p-8 text-center text-slate-600 backdrop-blur-md">
           No products found for your current filters.
         </div>
       )}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, ShoppingCart, Star, Store } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ShoppingCart, Star, Store } from "lucide-react";
 import apiClient from "../api/client";
 import { formatPrice, resolveImageUrl } from "../utils/product";
 
@@ -101,7 +101,9 @@ export default function ProductDetailPage() {
         )}
       </AnimatePresence>
 
-      <Link className="text-sm text-indigo-700 underline decoration-indigo-400 underline-offset-4" to="/">Back to products</Link>
+      <Link className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white/70 text-slate-700 transition hover:bg-white" to="/" aria-label="Back to products">
+        <ArrowLeft size={16} />
+      </Link>
 
       <motion.section
         initial={{ opacity: 0, y: 20 }}

@@ -29,6 +29,7 @@ export default function App() {
   };
 
   const isCustomerView = !user || user?.role === "CUSTOMER";
+  const customerGlassNav = isCustomerView && !location.pathname.startsWith("/vendor") && !location.pathname.startsWith("/admin");
 
   useEffect(() => {
     const query = new URLSearchParams(location.search).get("q") || "";
@@ -42,19 +43,19 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent">
-      <nav className="sticky top-0 z-50 border-b border-white/20 bg-slate-900/55 backdrop-blur-lg">
+    <div className="min-h-screen bg-stone-50/50">
+      <nav className={`sticky top-0 z-50 backdrop-blur-lg ${customerGlassNav ? "border-b border-stone-200/50 bg-white/70" : "border-b border-white/20 bg-slate-900/55"}`}>
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
-          <Link className="shrink-0 text-lg font-semibold tracking-tight text-slate-100 sm:text-xl" to="/">
+          <Link className={`shrink-0 text-lg font-semibold tracking-tight sm:text-xl ${customerGlassNav ? "text-slate-800" : "text-slate-100"}`} to="/">
             Marketplace
           </Link>
 
           {isCustomerView && !location.pathname.startsWith("/vendor") && !location.pathname.startsWith("/admin") && (
             <form onSubmit={handleSearchSubmit} className="order-3 w-full sm:order-2 sm:mx-auto sm:w-[24rem]">
-              <label className="group flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-slate-200 shadow-sm transition focus-within:border-indigo-300/70 focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.2)]">
-                <Search size={16} className="text-slate-300 transition group-focus-within:text-indigo-200" />
+              <label className={`group flex items-center gap-2 rounded-full px-4 py-2 shadow-sm transition focus-within:border-indigo-300/70 focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] ${customerGlassNav ? "border border-stone-200/70 bg-white/80 text-slate-700" : "border border-white/25 bg-white/10 text-slate-200"}`}>
+                <Search size={16} className={`transition ${customerGlassNav ? "text-slate-500 group-focus-within:text-indigo-600" : "text-slate-300 group-focus-within:text-indigo-200"}`} />
                 <input
-                  className="w-full bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-300"
+                  className={`w-full bg-transparent text-sm outline-none ${customerGlassNav ? "text-slate-700 placeholder:text-slate-400" : "text-slate-100 placeholder:text-slate-300"}`}
                   placeholder="Search products..."
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
@@ -65,22 +66,22 @@ export default function App() {
 
           <div className="order-2 ml-auto flex items-center gap-2 sm:order-3">
             {(!user || user?.role === "CUSTOMER") && (
-              <Link className="flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-slate-100 hover:bg-white/10" to="/cart">
+              <Link className={`flex items-center gap-1 rounded-lg px-2 py-1 text-sm ${customerGlassNav ? "text-slate-700 hover:bg-stone-100/90" : "text-slate-100 hover:bg-white/10"}`} to="/cart">
                 <ShoppingCart size={16} /> Cart
               </Link>
             )}
             {user?.role === "CUSTOMER" && (
-              <Link className="flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-slate-100 hover:bg-white/10" to="/orders">
+              <Link className={`flex items-center gap-1 rounded-lg px-2 py-1 text-sm ${customerGlassNav ? "text-slate-700 hover:bg-stone-100/90" : "text-slate-100 hover:bg-white/10"}`} to="/orders">
                 <Package size={16} /> My Orders
               </Link>
             )}
             {!user && (
-              <Link className="flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-slate-100 hover:bg-white/10" to="/login">
+              <Link className={`flex items-center gap-1 rounded-lg px-2 py-1 text-sm ${customerGlassNav ? "text-slate-700 hover:bg-stone-100/90" : "text-slate-100 hover:bg-white/10"}`} to="/login">
                 <LogIn size={16} /> Login
               </Link>
             )}
             {!user && (
-              <Link className="flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-slate-100 hover:bg-white/10" to="/register">
+              <Link className={`flex items-center gap-1 rounded-lg px-2 py-1 text-sm ${customerGlassNav ? "text-slate-700 hover:bg-stone-100/90" : "text-slate-100 hover:bg-white/10"}`} to="/register">
                 <UserPlus size={16} /> Register
               </Link>
             )}
@@ -100,12 +101,12 @@ export default function App() {
               </Link>
             )}
             {user && user?.role !== "VENDOR" && (
-              <Link className="flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-slate-100 hover:bg-white/10" to="/profile">
+              <Link className={`flex items-center gap-1 rounded-lg px-2 py-1 text-sm ${customerGlassNav ? "text-slate-700 hover:bg-stone-100/90" : "text-slate-100 hover:bg-white/10"}`} to="/profile">
                 <UserCircle2 size={16} /> Profile
               </Link>
             )}
             {user && (
-              <button className="rounded-lg border border-white/30 px-3 py-1 text-sm text-slate-100 hover:bg-white/10" onClick={logout}>
+              <button className={`rounded-lg px-3 py-1 text-sm ${customerGlassNav ? "border border-stone-300 text-slate-700 hover:bg-stone-100/90" : "border border-white/30 text-slate-100 hover:bg-white/10"}`} onClick={logout}>
                 Logout
               </button>
             )}
