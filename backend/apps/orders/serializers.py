@@ -23,6 +23,7 @@ class CheckoutSerializer(serializers.Serializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     order = serializers.IntegerField(source="order.id", read_only=True)
     product_name = serializers.CharField(source="product.name", read_only=True)
+    product_image = serializers.ImageField(source="product.image", read_only=True)
     vendor_name = serializers.CharField(source="vendor.store_name", read_only=True)
     order_created_at = serializers.DateTimeField(source="order.created_at", read_only=True)
     line_total = serializers.SerializerMethodField()
@@ -38,6 +39,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "order",
             "product",
             "product_name",
+            "product_image",
             "vendor",
             "vendor_name",
             "order_created_at",

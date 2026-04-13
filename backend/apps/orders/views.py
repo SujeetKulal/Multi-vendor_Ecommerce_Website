@@ -8,7 +8,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.models import CustomUser
+from apps.accounts.models import CustomUser, ShippingProfile
 from apps.orders.models import Order, OrderItem
 from apps.orders.serializers import (
     AdminOrderStatusSerializer,
@@ -56,6 +56,26 @@ class CheckoutAPIView(APIView):
     def post(self, request):
         if request.user.role != CustomUser.Role.CUSTOMER:
             return Response({"detail": "Only customers can checkout."}, status=status.HTTP_403_FORBIDDEN)
+
+        profile, _ = ShippingProfile.objects.get_or_create(user=request.user)
+        required_profile_fields = {
+            "phone": profile.phone,
+            "address_line1": profile.address_line1,
+            "city": profile.city,
+            "state": profile.state,
+            "postal_code": profile.postal_code,
+            "country": profile.country,
+        }
+        missing_fields = [field for field, value in required_profile_fields.items() if not (value or "").strip()]
+        if missing_fields:
+            return Response(
+                {
+                    "detail": "Please complete your profile with contact number and shipping address before checkout.",
+                    "code": "profile_incomplete",
+                    "missing_fields": missing_fields,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         serializer = CheckoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
