@@ -18,8 +18,8 @@ backend/staticfiles/
 !*.env.example
 
 # Node / Frontend
-/node_modules/
-frontend/node_modules/
+node_modules/
+**/node_modules/
 frontend/dist/
 frontend/.vite/
 npm-debug.log*
