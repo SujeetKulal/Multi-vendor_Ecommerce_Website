@@ -17,7 +17,9 @@ Scaffolded full-stack marketplace based on `PROJECT_SPEC.md`.
    - `pip install -r backend/requirements.txt`
 3. Copy env file:
    - `copy backend\\.env.example backend\\.env`
-4. Update DB credentials in `.env` for PostgreSQL `ecommerce_db`.
+4. Update DB credentials in `.env`.
+   - Local Postgres: use `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`.
+   - Supabase: set `DATABASE_URL` (recommended) and include `sslmode=require` in the URL (or set `DB_SSLMODE=require` when using DB_* fields).
 5. Run migrations:
    - `cd backend`
    - `python manage.py makemigrations`
