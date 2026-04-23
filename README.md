@@ -77,3 +77,6 @@ Scaffolded full-stack marketplace based on `PROJECT_SPEC.md`.
 - Vendor registration auto-creates `VendorProfile` with `is_approved=False`.
 - Product image uploads are enabled via Django media settings.
 - Checkout uses an atomic transaction and decrements stock safely.
+- For Render deployment with `DEBUG=False`, use:
+  - Build Command: `pip install -r backend/requirements.txt && python backend/manage.py collectstatic --noinput && python backend/manage.py migrate --noinput`
+  - Start Command: `gunicorn backend.config.wsgi:application --chdir backend`
