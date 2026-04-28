@@ -20,6 +20,7 @@ Scaffolded full-stack marketplace based on `PROJECT_SPEC.md`.
 4. Update DB credentials in `.env`.
    - Local Postgres: use `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`.
    - Supabase: set `DATABASE_URL` (recommended) and include `sslmode=require` in the URL (or set `DB_SSLMODE=require` when using DB_* fields).
+   - Supabase Storage (optional): set `USE_SUPABASE_STORAGE=True` and fill `SUPABASE_S3_*` keys to store uploaded images in a Supabase bucket.
 5. Run migrations:
    - `cd backend`
    - `python manage.py makemigrations`

@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from rest_framework import serializers
 
+from apps.common.utils import normalize_public_url
 from apps.orders.models import Order, OrderItem
 from apps.products.models import Product
 
@@ -23,7 +24,7 @@ class CheckoutSerializer(serializers.Serializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     order = serializers.IntegerField(source="order.id", read_only=True)
     product_name = serializers.CharField(source="product.name", read_only=True)
-    product_image = serializers.ImageField(source="product.image", read_only=True)
+    product_image = serializers.SerializerMethodField()
     vendor_name = serializers.CharField(source="vendor.store_name", read_only=True)
     order_created_at = serializers.DateTimeField(source="order.created_at", read_only=True)
     line_total = serializers.SerializerMethodField()
@@ -55,6 +56,15 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     def get_line_total(self, obj):
         return obj.line_total()
+
+    def get_product_image(self, obj):
+        image = getattr(obj.product, "image", None)
+        if not image:
+            return None
+        try:
+            return normalize_public_url(image.url)
+        except Exception:
+            return None
 
     def get_customer_name(self, obj):
         first = (obj.order.customer.first_name or "").strip()

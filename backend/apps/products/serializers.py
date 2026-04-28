@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from apps.accounts.models import CustomUser
+from apps.common.utils import normalize_public_url
 from apps.orders.models import OrderItem
 from apps.products.models import Product, ProductReview, ProductReviewImage
 
@@ -49,12 +50,28 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_rating_count(self, obj):
         return obj.rating_stats()["rating_count"]
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["image"] = normalize_public_url(data.get("image"))
+        return data
+
 
 class ProductReviewImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductReviewImage
         fields = ("id", "image")
         read_only_fields = ("id",)
+
+    def get_image(self, obj):
+        image = getattr(obj, "image", None)
+        if not image:
+            return None
+        try:
+            return normalize_public_url(image.url)
+        except Exception:
+            return None
 
 
 class ProductReviewSerializer(serializers.ModelSerializer):

@@ -1,6 +1,8 @@
 from datetime import timedelta
 from pathlib import Path
+import importlib.util
 import os
+import re
 from urllib.parse import parse_qs, unquote, urlparse
 
 
@@ -47,10 +49,13 @@ INSTALLED_APPS = [
     "apps.analytics.apps.AnalyticsConfig",
 ]
 
+USE_SUPABASE_STORAGE = os.getenv("USE_SUPABASE_STORAGE", "False").lower() == "true"
+if USE_SUPABASE_STORAGE:
+    INSTALLED_APPS.append("storages")
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -58,6 +63,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if importlib.util.find_spec("whitenoise") is not None:
+    MIDDLEWARE.insert(2, "whitenoise.middleware.WhiteNoiseMiddleware")
 
 ROOT_URLCONF = "config.urls"
 
@@ -125,9 +133,48 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+if importlib.util.find_spec("whitenoise") is not None:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+if USE_SUPABASE_STORAGE:
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": (
+                "whitenoise.storage.CompressedManifestStaticFilesStorage"
+                if importlib.util.find_spec("whitenoise") is not None
+                else "django.contrib.staticfiles.storage.StaticFilesStorage"
+            ),
+        },
+    }
+
+    AWS_ACCESS_KEY_ID = os.getenv("SUPABASE_S3_ACCESS_KEY", "")
+    AWS_SECRET_ACCESS_KEY = os.getenv("SUPABASE_S3_SECRET_KEY", "")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("SUPABASE_STORAGE_BUCKET", "product-images")
+    AWS_S3_REGION_NAME = os.getenv("SUPABASE_S3_REGION", "us-east-1")
+    AWS_S3_ENDPOINT_URL = os.getenv("SUPABASE_S3_ENDPOINT", "")
+    AWS_S3_SIGNATURE_VERSION = "s3v4"
+    AWS_S3_ADDRESSING_STYLE = "path"
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = False
+    AWS_S3_FILE_OVERWRITE = False
+
+    # Supabase public object URLs should be used in frontend-facing image links.
+    supabase_public_base = os.getenv("SUPABASE_PUBLIC_BASE_URL", "").rstrip("/")
+    if not supabase_public_base and AWS_S3_ENDPOINT_URL:
+        parsed = urlparse(AWS_S3_ENDPOINT_URL)
+        host = parsed.netloc
+        match = re.match(r"^(?P<ref>[^.]+)\.storage\.supabase\.co$", host)
+        if match:
+            supabase_public_base = f"https://{match.group('ref')}.supabase.co"
+
+    if supabase_public_base:
+        AWS_S3_CUSTOM_DOMAIN = f"{supabase_public_base}/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}"
+        AWS_S3_URL_PROTOCOL = "https:"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.CustomUser"
